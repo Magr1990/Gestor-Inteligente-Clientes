@@ -1,7 +1,3 @@
-"""
-Gestor de base de datos SQLite para clientes
-"""
-
 import sqlite3
 import json
 from datetime import datetime
@@ -10,19 +6,16 @@ from models.cliente_premium import ClientePremium
 from models.cliente_corporativo import ClienteCorporativo
 
 class DatabaseManager:
-    """Manejador de la base de datos SQLite"""
     
     def __init__(self, db_name="clientes.db"):
         self.db_name = db_name
         self._init_database()
     
     def _init_database(self):
-        """Inicializa la base de datos con las tablas necesarias"""
         try:
             conn = sqlite3.connect(self.db_name)
             cursor = conn.cursor()
             
-            # Tabla de clientes
             cursor.execute('''
                 CREATE TABLE IF NOT EXISTS clientes (
                     id INTEGER PRIMARY KEY,
@@ -37,7 +30,6 @@ class DatabaseManager:
                 )
             ''')
             
-            # Tabla de logs
             cursor.execute('''
                 CREATE TABLE IF NOT EXISTS logs (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -56,12 +48,10 @@ class DatabaseManager:
             raise
     
     def guardar_cliente(self, cliente):
-        """Guarda un cliente en la base de datos"""
         try:
             conn = sqlite3.connect(self.db_name)
             cursor = conn.cursor()
             
-            # Preparar datos específicos según tipo
             datos_especificos = self._serializar_datos_especificos(cliente)
             
             cursor.execute('''
@@ -81,7 +71,6 @@ class DatabaseManager:
             conn.commit()
             conn.close()
             
-            # Registrar en logs
             self._log_accion("CLIENTE_GUARDADO", f"Cliente {cliente.id} - {cliente.nombre}")
             
             return True
@@ -91,10 +80,8 @@ class DatabaseManager:
             return False
     
     def _serializar_datos_especificos(self, cliente):
-        """Serializa los datos específicos según el tipo de cliente"""
         datos = {}
         
-        # Guardar RUT para todos los clientes en el JSON (ya que no es columna en tabla)
         datos['rut'] = cliente.rut
         
         if isinstance(cliente, ClienteRegular):
@@ -112,7 +99,6 @@ class DatabaseManager:
         return json.dumps(datos)
     
     def cargar_cliente(self, cliente_id):
-        """Carga un cliente desde la base de datos"""
         try:
             conn = sqlite3.connect(self.db_name)
             cursor = conn.cursor()
@@ -132,16 +118,13 @@ class DatabaseManager:
             return None
     
     def _deserializar_cliente(self, row):
-        """Deserializa una fila de la base de datos a un objeto Cliente"""
         (cliente_id, tipo, nombre, email, telefono, direccion, 
          fecha_registro, activo, datos_especificos) = row
         
         datos = json.loads(datos_especificos) if datos_especificos else {}
         
-        # Obtener RUT (si no existe en datos antiguos, usar string vacío o default)
         rut = datos.get('rut', 'Sin RUT')
         
-        # Convertir fecha_registro de string a datetime
         fecha_reg_obj = None
         if fecha_registro:
             try:
@@ -149,7 +132,6 @@ class DatabaseManager:
             except (ValueError, TypeError):
                 fecha_reg_obj = None
 
-        # Determinar el tipo de cliente
         if "Regular" in tipo:
             cliente = ClienteRegular(
                 cliente_id, nombre, email, telefono, direccion,
@@ -183,7 +165,6 @@ class DatabaseManager:
         return cliente
     
     def obtener_todos_clientes(self):
-        """Obtiene todos los clientes de la base de datos"""
         try:
             conn = sqlite3.connect(self.db_name)
             cursor = conn.cursor()
@@ -206,7 +187,6 @@ class DatabaseManager:
             return []
     
     def eliminar_cliente(self, cliente_id):
-        """Elimina un cliente de la base de datos"""
         try:
             conn = sqlite3.connect(self.db_name)
             cursor = conn.cursor()
@@ -227,7 +207,6 @@ class DatabaseManager:
             return False
     
     def buscar_clientes(self, criterio, valor):
-        """Busca clientes por criterio"""
         try:
             conn = sqlite3.connect(self.db_name)
             cursor = conn.cursor()
@@ -251,7 +230,6 @@ class DatabaseManager:
             return []
     
     def _log_accion(self, accion, detalles=""):
-        """Registra una acción en la tabla de logs"""
         try:
             conn = sqlite3.connect(self.db_name)
             cursor = conn.cursor()
@@ -268,7 +246,6 @@ class DatabaseManager:
             pass
     
     def obtener_logs(self, limite=100):
-        """Obtiene los últimos logs"""
         try:
             conn = sqlite3.connect(self.db_name)
             cursor = conn.cursor()

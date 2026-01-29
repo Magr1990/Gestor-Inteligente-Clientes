@@ -50,7 +50,7 @@ class TestClientes(unittest.TestCase):
                                    "Tech Solutions", "76.123.456-7")
         
         self.assertEqual(cliente.empresa, "Tech Solutions")
-        self.assertEqual(cliente.rut, "76.123.456-7")
+        self.assertEqual(cliente.rut, "761234567")
         self.assertEqual(cliente.obtener_tipo(), "Corporativo")
     
     def test_cliente_corporativo_descuento(self):

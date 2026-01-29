@@ -28,7 +28,7 @@ class Logger:
             log_file = os.path.join(self.log_dir, f"{self.app_name}.log")
             file_handler = RotatingFileHandler(
                 log_file,
-                maxBytes=10485760,  # 10MB
+                maxBytes=10485760,
                 backupCount=5
             )
             file_handler.setLevel(logging.DEBUG)
