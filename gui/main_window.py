@@ -124,7 +124,7 @@ class GICApp:
                   command=self._validar_email, width=8).grid(row=row, column=2, padx=(5, 0))
         row += 1
         
-        ttk.Label(center_frame, text="Teléfono:").grid(row=row, column=0, sticky=tk.W, pady=2)
+        ttk.Label(center_frame, text="Teléfono (+56):").grid(row=row, column=0, sticky=tk.W, pady=2)
         self.telefono_var = tk.StringVar()
         ttk.Entry(center_frame, textvariable=self.telefono_var, 
                  width=30).grid(row=row, column=1, sticky=(tk.W, tk.E), pady=2)
@@ -220,7 +220,11 @@ class GICApp:
         self.id_var.set(str(cliente.id))
         self.nombre_var.set(cliente.nombre)
         self.email_var.set(cliente.email)
-        self.telefono_var.set(cliente.telefono)
+        
+        telefono = cliente.telefono
+        if telefono.startswith("+56"):
+            telefono = telefono[3:]
+        self.telefono_var.set(telefono)
         self.direccion_var.set(cliente.direccion)
         self.rut_var.set(cliente.rut)
         
@@ -390,7 +394,13 @@ class GICApp:
             cliente_id = int(self.id_var.get()) if self.id_var.get() else 0
             nombre = self.nombre_var.get().strip()
             email = self.email_var.get().strip()
-            telefono = self.telefono_var.get().strip()
+            
+            telefono_input = self.telefono_var.get().strip()
+            if telefono_input and not telefono_input.startswith('+'):
+                telefono = f"+56{telefono_input}"
+            else:
+                telefono = telefono_input
+                
             direccion = self.direccion_var.get().strip()
             tipo = self.tipo_var.get()
             rut = self.rut_var.get().strip()

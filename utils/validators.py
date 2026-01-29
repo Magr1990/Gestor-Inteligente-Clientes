@@ -5,7 +5,6 @@ Utilidades de validación avanzada
 import re
 try:
     import phonenumbers
-    # Si ves un error aquí, necesitas instalar la librería: pip install phonenumbers
 except ImportError:
     phonenumbers = None
 from datetime import datetime
@@ -70,9 +69,8 @@ class Validators:
                 return True, formato_internacional
                 
             except phonenumbers.phonenumberutil.NumberParseException:
-                pass # Fallback a validación simple
+                pass
             
-        # Fallback a validación simple
         telefono_limpio = re.sub(r'[^\d+]', '', telefono)
         
         if len(telefono_limpio) < 8:

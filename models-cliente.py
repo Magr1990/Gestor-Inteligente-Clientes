@@ -93,10 +93,14 @@ class Cliente(ABC):
     def _validar_telefono(self, telefono):
         telefono_limpio = re.sub(r'[\s\-\(\)]', '', str(telefono))
         
-        if not telefono_limpio.isdigit():
+        check_digits = telefono_limpio
+        if check_digits.startswith('+'):
+            check_digits = check_digits[1:]
+            
+        if not check_digits.isdigit():
             raise ValueError("El teléfono debe contener solo dígitos")
         
-        if len(telefono_limpio) < 8 or len(telefono_limpio) > 15:
+        if len(check_digits) < 8 or len(check_digits) > 15:
             raise ValueError("El teléfono debe tener entre 8 y 15 dígitos")
         
         return telefono_limpio
