@@ -1,0 +1,36 @@
+INSTRUCCIONES DE INSTALACIÓN Y EJECUCIÓN - GESTOR INTELIGENTE DE CLIENTES (GIC)
+===============================================================================
+
+Sigue estos pasos para ejecutar la aplicación correctamente en tu sistema.
+
+PASO 1: REQUISITOS PREVIOS
+--------------------------
+Asegúrate de tener instalado Python 3.8 o superior.
+Puedes verificarlo abriendo una terminal (CMD o PowerShell) y escribiendo:
+   python --version
+
+PASO 2: ORGANIZACIÓN DE ARCHIVOS (IMPORTANTE)
+---------------------------------------------
+El proyecto incluye un script para organizar automáticamente los archivos en las carpetas correctas.
+Si tienes archivos con nombres como "models-cliente.py" o "Interfaz Gráfica.py" sueltos:
+
+1. Abre la terminal en la carpeta del proyecto.
+2. Ejecuta el siguiente comando:
+   python organize.py
+
+   Verás mensajes indicando que los archivos se han movido a carpetas como 'models', 'database', 'gui', etc.
+
+PASO 3: INSTALACIÓN DE DEPENDENCIAS
+-----------------------------------
+Instala las librerías externas necesarias ejecutando:
+   pip install phonenumbers requests
+
+PASO 4: EJECUCIÓN DEL PROGRAMA
+------------------------------
+Una vez organizados los archivos e instaladas las librerías, inicia la aplicación con:
+   python main.py
+
+SOLUCIÓN DE PROBLEMAS
+---------------------
+- Si ves un error "ModuleNotFoundError: No module named 'gui'", repite el PASO 2.
+- Si ves errores relacionados con 'phonenumbers', repite el PASO 3.

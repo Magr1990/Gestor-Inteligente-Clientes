@@ -1,0 +1,28 @@
+gic_system/
+├── models/
+│   ├── __init__.py
+│   ├── cliente.py
+│   ├── cliente_regular.py
+│   ├── cliente_premium.py
+│   └── cliente_corporativo.py
+├── database/
+│   ├── __init__.py
+│   ├── db_manager.py
+│   └── json_manager.py
+├── api_integrations/
+│   ├── __init__.py
+│   ├── email_validator.py
+│   └── notification_service.py
+├── gui/
+│   ├── __init__.py
+│   └── main_window.py
+├── tests/
+│   ├── __init__.py
+│   └── test_clientes.py
+├── utils/
+│   ├── __init__.py
+│   ├── validators.py
+│   └── logger.py
+├── main.py
+├── requirements.txt
+└── README.md

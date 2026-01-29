@@ -1,0 +1,149 @@
+@startuml DiagramaClasesGIC
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+title Diagrama de Clases - Gestor Inteligente de Clientes (GIC)
+
+package "Modelos (Models)" {
+    abstract class Cliente {
+        # _id: int
+        # _nombre: str
+        # _email: str
+        # _telefono: str
+        # _direccion: str
+        # _fecha_registro: datetime
+        # _activo: bool
+        + id: int
+        + nombre: str
+        + email: str
+        + telefono: str
+        + direccion: str
+        + fecha_registro: datetime
+        + activo: bool
+        + {abstract} calcular_descuento(monto: float): float
+        + {abstract} obtener_tipo(): str
+        + obtener_informacion(): dict
+    }
+
+    class ClienteRegular {
+        - _puntos_fidelidad: int
+        + calcular_descuento(monto: float): float
+        + obtener_tipo(): str
+        + agregar_puntos(puntos: int)
+        + canjear_puntos(puntos: int): bool
+    }
+
+    class ClientePremium {
+        - _nivel: str
+        - _beneficios_extra: list
+        + calcular_descuento(monto: float): float
+        + obtener_tipo(): str
+        + agregar_beneficio(beneficio: str)
+    }
+
+    class ClienteCorporativo {
+        - _empresa: str
+        - _nit: str
+        - _contacto_alterno: str
+        - _facturacion_mensual: float
+        + calcular_descuento(monto: float): float
+        + obtener_tipo(): str
+        + actualizar_facturacion(monto: float)
+    }
+
+    Cliente <|-- ClienteRegular
+    Cliente <|-- ClientePremium
+    Cliente <|-- ClienteCorporativo
+}
+
+package "Persistencia (Database)" {
+    class DatabaseManager {
+        - db_name: str
+        + guardar_cliente(cliente: Cliente): bool
+        + cargar_cliente(id: int): Cliente
+        + eliminar_cliente(id: int): bool
+        + buscar_clientes(criterio: str, valor: str): list
+        + obtener_todos_clientes(): list
+        + obtener_logs(limite: int): list
+    }
+
+    class JSONManager {
+        - backup_dir: str
+        + exportar_clientes(clientes: list, nombre_archivo: str): str
+        + exportar_clientes_csv(clientes: list, nombre_archivo: str): str
+        + importar_clientes(ruta_archivo: str): list
+        + crear_backup(db_manager: DatabaseManager): str
+        + listar_backups(): list
+    }
+}
+
+package "Utilidades (Utils)" {
+    class Validators {
+        + {static} validar_email_avanzado(email: str): tuple
+        + {static} validar_telefono_avanzado(telefono: str, pais: str): tuple
+        + {static} validar_nit(nit: str, pais: str): tuple
+        + {static} validar_direccion_completa(direccion: str): tuple
+        + {static} validar_fecha_nacimiento(fecha_str: str): tuple
+    }
+
+    class Logger {
+        - log_dir: str
+        - app_name: str
+        + log(mensaje: str, nivel: str)
+        + log_operacion(usuario: str, operacion: str, detalles: str)
+        + log_error_detallado(excepcion: Exception, contexto: str)
+        + obtener_logs_recientes(lineas: int): list
+        + crear_backup_logs(): str
+    }
+}
+
+package "Integraciones (API)" {
+    abstract class EmailValidator {
+        + {abstract} validar_email(email: str): dict
+    }
+
+    class SimpleEmailValidator {
+        + validar_email(email: str): dict
+    }
+
+    class APIBasedEmailValidator {
+        - api_key: str
+        + validar_email(email: str): dict
+    }
+
+    class NotificationService {
+        - config: dict
+        + enviar_email_bienvenida(cliente: Cliente): bool
+        + enviar_notificacion_general(destinatario: str, asunto: str, mensaje: str): bool
+    }
+
+    EmailValidator <|-- SimpleEmailValidator
+    EmailValidator <|-- APIBasedEmailValidator
+}
+
+package "Interfaz Gráfica (GUI)" {
+    class GICApp {
+        - db_manager: DatabaseManager
+        - json_manager: JSONManager
+        - email_validator: EmailValidator
+        - validators: Validators
+        - logger: Logger
+        - clientes: list
+        - cliente_seleccionado: Cliente
+        + run()
+    }
+}
+
+' Relaciones
+GICApp --> DatabaseManager
+GICApp --> JSONManager
+GICApp --> Validators
+GICApp --> Logger
+GICApp --> EmailValidator
+GICApp --> NotificationService
+GICApp ..> Cliente : gestiona
+
+DatabaseManager ..> Cliente : persiste
+JSONManager ..> Cliente : serializa
+NotificationService ..> Cliente : notifica
+
+@enduml
