@@ -10,7 +10,7 @@ Sistema integral de gestión de clientes desarrollado en Python para la empresa 
 - **Persistencia de Datos**:
   - Base de datos **SQLite** para almacenamiento robusto.
   - Exportación e importación en formatos **JSON** y **CSV**.
-- **Validaciones Avanzadas**: Verificación de emails, teléfonos (formato internacional) y NIT.
+- **Validaciones Avanzadas**: Verificación de emails, teléfonos (formato internacional) y RUT chileno (Módulo 11).
 - **Sistema de Logs**: Registro detallado de operaciones y errores.
 - **Integraciones**: Simulación de servicios de notificación por email y validación externa.
 
@@ -18,6 +18,22 @@ Sistema integral de gestión de clientes desarrollado en Python para la empresa 
 
 - Python 3.8 o superior
 - Librerías externas: `phonenumbers`, `requests`
+
+## 📧 Configuración de Email
+
+Para activar el envío de correos de bienvenida, edita el archivo `config/email_config.json` con tus credenciales:
+
+```json
+{
+    "smtp_server": "smtp.gmail.com",
+    "smtp_port": 587,
+    "sender_email": "tu_correo@gmail.com",
+    "sender_password": "tu_contraseña_de_aplicacion",
+    "use_tls": true
+}
+```
+
+**Nota:** Si usas Gmail, debes generar una **Contraseña de Aplicación** en la configuración de seguridad de tu cuenta de Google (no uses tu contraseña normal).
 
 ## 🛠️ Instalación y Ejecución
 

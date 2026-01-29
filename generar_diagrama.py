@@ -1,12 +1,7 @@
-"""
-Script para generar el diagrama UML (PNG) usando Python.
-Requiere internet y la librería plantuml.
-"""
 import os
 import sys
 
 def generar_png():
-    # Verificar instalación de librería
     try:
         from plantuml import PlantUML
     except ImportError:
@@ -24,10 +19,8 @@ def generar_png():
     print("   (Conectando con el servidor de PlantUML...)")
 
     try:
-        # Usar servidor público
         servidor = PlantUML(url='http://www.plantuml.com/plantuml/img/')
         
-        # Generar y descargar
         servidor.processes_file(archivo_puml)
         print(f"✅ Imagen generada correctamente: {archivo_puml.replace('.puml', '.png')}")
         

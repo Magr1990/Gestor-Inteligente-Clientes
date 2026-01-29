@@ -1,30 +1,16 @@
-# Gestor Inteligente de Clientes (GIC)
-# Dependencias del proyecto
-
-# Core
 python>=3.8
 
-# Base de datos
 sqlite3
 
-# Interfaz gráfica
 tkinter
 
-# APIs y servicios
 requests>=2.28.0
 phonenumbers>=8.13.0
 
-# Email
 secure-smtplib
-
-# Testing
 pytest>=7.0.0
 pytest-cov>=4.0.0
-
-# Desarrollo
 black>=22.0.0
 flake8>=6.0.0
 mypy>=1.0.0
-
-# Documentación
 sphinx>=6.0.0

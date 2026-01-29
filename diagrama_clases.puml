@@ -10,6 +10,7 @@ package "Modelos (Models)" {
         # _email: str
         # _telefono: str
         # _direccion: str
+        # _rut: str
         # _fecha_registro: datetime
         # _activo: bool
         + id: int
@@ -17,6 +18,7 @@ package "Modelos (Models)" {
         + email: str
         + telefono: str
         + direccion: str
+        + rut: str
         + fecha_registro: datetime
         + activo: bool
         + {abstract} calcular_descuento(monto: float): float
@@ -42,7 +44,6 @@ package "Modelos (Models)" {
 
     class ClienteCorporativo {
         - _empresa: str
-        - _nit: str
         - _contacto_alterno: str
         - _facturacion_mensual: float
         + calcular_descuento(monto: float): float
@@ -80,7 +81,7 @@ package "Utilidades (Utils)" {
     class Validators {
         + {static} validar_email_avanzado(email: str): tuple
         + {static} validar_telefono_avanzado(telefono: str, pais: str): tuple
-        + {static} validar_nit(nit: str, pais: str): tuple
+        + {static} validar_rut(rut: str): tuple
         + {static} validar_direccion_completa(direccion: str): tuple
         + {static} validar_fecha_nacimiento(fecha_str: str): tuple
     }
@@ -133,7 +134,6 @@ package "Interfaz Gráfica (GUI)" {
     }
 }
 
-' Relaciones
 GICApp --> DatabaseManager
 GICApp --> JSONManager
 GICApp --> Validators

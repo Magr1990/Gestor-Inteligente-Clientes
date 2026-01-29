@@ -1,0 +1,7 @@
+{
+    "smtp_server": "smtp.gmail.com",
+    "smtp_port": 587,
+    "sender_email": "TU_CORREO@gmail.com",
+    "sender_password": "TU_CONTRASEÑA_DE_APLICACION",
+    "use_tls": true
+}

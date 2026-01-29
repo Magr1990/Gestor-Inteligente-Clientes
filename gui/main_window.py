@@ -1,14 +1,9 @@
-"""
-Interfaz gráfica principal del GIC usando Tkinter
-"""
-
 import tkinter as tk
 from tkinter import ttk, messagebox, scrolledtext
 import tkinter.font as tkfont
 from datetime import datetime
 import threading
 
-# Importar componentes del sistema
 from models.cliente_regular import ClienteRegular
 from models.cliente_premium import ClientePremium
 from models.cliente_corporativo import ClienteCorporativo
@@ -20,7 +15,6 @@ from utils.validators import Validators
 from utils.logger import Logger
 
 class GICApp:
-    """Aplicación principal de Gestión Inteligente de Clientes"""
     
     def __init__(self):
         self.root = tk.Tk()
@@ -28,56 +22,44 @@ class GICApp:
         self.root.geometry("1200x700")
         self.root.configure(bg='#f0f0f0')
         
-        # Inicializar componentes
         self.db_manager = DatabaseManager()
         self.json_manager = JSONManager()
         self.email_validator = SimpleEmailValidator()
         self.validators = Validators()
         self.logger = Logger()
         
-        # Configurar icono (si existe)
         try:
             self.root.iconbitmap('assets/icon.ico')
         except:
             pass
         
-        # Configurar fuente
         self.title_font = tkfont.Font(family="Helvetica", size=16, weight="bold")
         self.normal_font = tkfont.Font(family="Helvetica", size=10)
         
-        # Variables de control
         self.clientes = []
         self.cliente_seleccionado = None
         
-        # Inicializar interfaz
         self._crear_widgets()
         self._cargar_clientes()
         
     def _crear_widgets(self):
-        """Crea todos los widgets de la interfaz"""
-        
-        # Frame principal
         main_frame = ttk.Frame(self.root, padding="10")
         main_frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
         
-        # Configurar expansión
         self.root.columnconfigure(0, weight=1)
         self.root.rowconfigure(0, weight=1)
         main_frame.columnconfigure(1, weight=1)
         main_frame.rowconfigure(1, weight=1)
         
-        # Título
         ttk.Label(main_frame, text="Gestor Inteligente de Clientes", 
                  font=self.title_font, foreground="#2c3e50").grid(
                  row=0, column=0, columnspan=3, pady=(0, 20))
         
-        # Panel izquierdo (Lista de clientes)
         left_frame = ttk.LabelFrame(main_frame, text="Clientes", padding="10")
         left_frame.grid(row=1, column=0, sticky=(tk.W, tk.E, tk.N, tk.S), padx=(0, 10))
         left_frame.columnconfigure(0, weight=1)
         left_frame.rowconfigure(1, weight=1)
         
-        # Botones de acción rápida
         btn_frame = ttk.Frame(left_frame)
         btn_frame.grid(row=0, column=0, pady=(0, 10), sticky=(tk.W, tk.E))
         
@@ -86,7 +68,6 @@ class GICApp:
         ttk.Button(btn_frame, text="Refrescar", 
                   command=self._cargar_clientes, width=10).pack(side=tk.LEFT)
         
-        # Barra de búsqueda
         search_frame = ttk.Frame(left_frame)
         search_frame.grid(row=1, column=0, pady=(0, 10), sticky=(tk.W, tk.E))
         
@@ -97,35 +78,28 @@ class GICApp:
         ttk.Button(search_frame, text="Buscar", 
                   command=self._buscar_clientes, width=10).pack(side=tk.LEFT)
         
-        # Lista de clientes
         self.client_listbox = tk.Listbox(left_frame, height=20, font=self.normal_font)
         self.client_listbox.grid(row=2, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
         
-        # Scrollbar para lista
         scrollbar = ttk.Scrollbar(left_frame, orient=tk.VERTICAL, 
                                  command=self.client_listbox.yview)
         scrollbar.grid(row=2, column=1, sticky=(tk.N, tk.S))
         self.client_listbox.configure(yscrollcommand=scrollbar.set)
         
-        # Bind selección
         self.client_listbox.bind('<<ListboxSelect>>', self._seleccionar_cliente)
         
-        # Panel central (Detalles del cliente)
         center_frame = ttk.LabelFrame(main_frame, text="Detalles del Cliente", padding="10")
         center_frame.grid(row=1, column=1, sticky=(tk.W, tk.E, tk.N, tk.S))
         center_frame.columnconfigure(1, weight=1)
         
-        # Formulario de detalles
         row = 0
         
-        # ID
         ttk.Label(center_frame, text="ID:").grid(row=row, column=0, sticky=tk.W, pady=2)
         self.id_var = tk.StringVar()
         ttk.Entry(center_frame, textvariable=self.id_var, state='readonly', 
                  width=30).grid(row=row, column=1, sticky=(tk.W, tk.E), pady=2)
         row += 1
         
-        # Tipo de Cliente
         ttk.Label(center_frame, text="Tipo:").grid(row=row, column=0, sticky=tk.W, pady=2)
         self.tipo_var = tk.StringVar(value="Regular")
         tipo_combo = ttk.Combobox(center_frame, textvariable=self.tipo_var, 
@@ -135,14 +109,12 @@ class GICApp:
         tipo_combo.bind('<<ComboboxSelected>>', self._cambiar_tipo_cliente)
         row += 1
         
-        # Nombre
         ttk.Label(center_frame, text="Nombre:").grid(row=row, column=0, sticky=tk.W, pady=2)
         self.nombre_var = tk.StringVar()
         ttk.Entry(center_frame, textvariable=self.nombre_var, 
                  width=30).grid(row=row, column=1, sticky=(tk.W, tk.E), pady=2)
         row += 1
         
-        # Email
         ttk.Label(center_frame, text="Email:").grid(row=row, column=0, sticky=tk.W, pady=2)
         self.email_var = tk.StringVar()
         email_entry = ttk.Entry(center_frame, textvariable=self.email_var, 
@@ -152,27 +124,29 @@ class GICApp:
                   command=self._validar_email, width=8).grid(row=row, column=2, padx=(5, 0))
         row += 1
         
-        # Teléfono
         ttk.Label(center_frame, text="Teléfono:").grid(row=row, column=0, sticky=tk.W, pady=2)
         self.telefono_var = tk.StringVar()
         ttk.Entry(center_frame, textvariable=self.telefono_var, 
                  width=30).grid(row=row, column=1, sticky=(tk.W, tk.E), pady=2)
         row += 1
         
-        # Dirección
         ttk.Label(center_frame, text="Dirección:").grid(row=row, column=0, sticky=tk.W, pady=2)
         self.direccion_var = tk.StringVar()
         ttk.Entry(center_frame, textvariable=self.direccion_var, 
                  width=30).grid(row=row, column=1, sticky=(tk.W, tk.E), pady=2)
         row += 1
         
-        # Frame específico según tipo (se actualiza dinámicamente)
+        ttk.Label(center_frame, text="RUT:").grid(row=row, column=0, sticky=tk.W, pady=2)
+        self.rut_var = tk.StringVar()
+        ttk.Entry(center_frame, textvariable=self.rut_var, 
+                 width=30).grid(row=row, column=1, sticky=(tk.W, tk.E), pady=2)
+        row += 1
+        
         self.specific_frame = ttk.Frame(center_frame)
         self.specific_frame.grid(row=row, column=0, columnspan=3, 
                                 sticky=(tk.W, tk.E), pady=10)
         row += 1
         
-        # Botones de acción
         button_frame = ttk.Frame(center_frame)
         button_frame.grid(row=row, column=0, columnspan=3, pady=20)
         
@@ -183,18 +157,15 @@ class GICApp:
         ttk.Button(button_frame, text="Limpiar", 
                   command=self._limpiar_formulario, width=12).pack(side=tk.LEFT, padx=5)
         
-        # Panel derecho (Logs y acciones)
         right_frame = ttk.LabelFrame(main_frame, text="Registro de Actividad", padding="10")
         right_frame.grid(row=1, column=2, sticky=(tk.W, tk.E, tk.N, tk.S), padx=(10, 0))
         right_frame.columnconfigure(0, weight=1)
         right_frame.rowconfigure(0, weight=1)
         
-        # Área de texto para logs
         self.log_text = scrolledtext.ScrolledText(right_frame, height=25, 
                                                  font=('Consolas', 9))
         self.log_text.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
         
-        # Botones de logs
         log_btn_frame = ttk.Frame(right_frame)
         log_btn_frame.grid(row=1, column=0, pady=(10, 0), sticky=(tk.W, tk.E))
         
@@ -202,21 +173,20 @@ class GICApp:
                   command=self._actualizar_logs, width=12).pack(side=tk.LEFT, padx=2)
         ttk.Button(log_btn_frame, text="Exportar JSON", 
                   command=self._exportar_json, width=12).pack(side=tk.LEFT, padx=2)
+        ttk.Button(log_btn_frame, text="Exportar CSV", 
+                  command=self._exportar_csv, width=12).pack(side=tk.LEFT, padx=2)
         ttk.Button(log_btn_frame, text="Backup", 
                   command=self._crear_backup, width=12).pack(side=tk.LEFT, padx=2)
         
-        # Barra de estado
         self.status_var = tk.StringVar(value="Sistema listo")
         status_bar = ttk.Label(main_frame, textvariable=self.status_var, 
                               relief=tk.SUNKEN, anchor=tk.W)
         status_bar.grid(row=2, column=0, columnspan=3, sticky=(tk.W, tk.E), pady=(10, 0))
         
-        # Inicializar frames específicos
         self._actualizar_frame_especifico()
         self._actualizar_logs()
     
     def _cargar_clientes(self):
-        """Carga los clientes desde la base de datos"""
         try:
             self.clientes = self.db_manager.obtener_todos_clientes()
             self._actualizar_lista_clientes()
@@ -226,7 +196,6 @@ class GICApp:
             messagebox.showerror("Error", f"No se pudieron cargar los clientes: {str(e)}")
     
     def _actualizar_lista_clientes(self):
-        """Actualiza la lista de clientes en la interfaz"""
         self.client_listbox.delete(0, tk.END)
         
         for cliente in self.clientes:
@@ -234,7 +203,6 @@ class GICApp:
             self.client_listbox.insert(tk.END, display_text)
     
     def _seleccionar_cliente(self, event):
-        """Maneja la selección de un cliente en la lista"""
         seleccion = self.client_listbox.curselection()
         
         if seleccion:
@@ -244,7 +212,6 @@ class GICApp:
                 self._mostrar_detalles_cliente()
     
     def _mostrar_detalles_cliente(self):
-        """Muestra los detalles del cliente seleccionado"""
         if not self.cliente_seleccionado:
             return
         
@@ -255,8 +222,8 @@ class GICApp:
         self.email_var.set(cliente.email)
         self.telefono_var.set(cliente.telefono)
         self.direccion_var.set(cliente.direccion)
+        self.rut_var.set(cliente.rut)
         
-        # Determinar tipo
         tipo = cliente.obtener_tipo()
         if "Regular" in tipo:
             self.tipo_var.set("Regular")
@@ -268,12 +235,9 @@ class GICApp:
         self._actualizar_frame_especifico()
     
     def _cambiar_tipo_cliente(self, event=None):
-        """Cambia el frame específico según el tipo de cliente seleccionado"""
         self._actualizar_frame_especifico()
     
     def _actualizar_frame_especifico(self):
-        """Actualiza el frame con campos específicos según el tipo de cliente"""
-        # Limpiar frame
         for widget in self.specific_frame.winfo_children():
             widget.destroy()
         
@@ -287,7 +251,6 @@ class GICApp:
             self._crear_frame_corporativo()
     
     def _crear_frame_regular(self):
-        """Crea el frame para cliente regular"""
         ttk.Label(self.specific_frame, text="Puntos Fidelidad:").grid(
             row=0, column=0, sticky=tk.W, pady=2)
         
@@ -299,7 +262,6 @@ class GICApp:
                  width=15).grid(row=0, column=1, sticky=tk.W, pady=2)
     
     def _crear_frame_premium(self):
-        """Crea el frame para cliente premium"""
         ttk.Label(self.specific_frame, text="Nivel:").grid(
             row=0, column=0, sticky=tk.W, pady=2)
         
@@ -324,7 +286,6 @@ class GICApp:
                  width=25).grid(row=1, column=1, sticky=tk.W, pady=2)
     
     def _crear_frame_corporativo(self):
-        """Crea el frame para cliente corporativo"""
         row = 0
         
         ttk.Label(self.specific_frame, text="Empresa:").grid(
@@ -335,17 +296,6 @@ class GICApp:
             self.empresa_var.set(self.cliente_seleccionado.empresa)
         
         ttk.Entry(self.specific_frame, textvariable=self.empresa_var, 
-                 width=25).grid(row=row, column=1, sticky=tk.W, pady=2)
-        row += 1
-        
-        ttk.Label(self.specific_frame, text="NIT:").grid(
-            row=row, column=0, sticky=tk.W, pady=2)
-        
-        self.nit_var = tk.StringVar()
-        if self.cliente_seleccionado and isinstance(self.cliente_seleccionado, ClienteCorporativo):
-            self.nit_var.set(self.cliente_seleccionado.nit)
-        
-        ttk.Entry(self.specific_frame, textvariable=self.nit_var, 
                  width=25).grid(row=row, column=1, sticky=tk.W, pady=2)
         row += 1
         
@@ -360,11 +310,9 @@ class GICApp:
                  width=25).grid(row=row, column=1, sticky=tk.W, pady=2)
     
     def _nuevo_cliente(self):
-        """Prepara el formulario para un nuevo cliente"""
         self.cliente_seleccionado = None
         self._limpiar_formulario()
         
-        # Generar nuevo ID
         if self.clientes:
             nuevo_id = max(c.id for c in self.clientes) + 1
         else:
@@ -374,15 +322,14 @@ class GICApp:
         self._actualizar_status("Listo para nuevo cliente")
     
     def _limpiar_formulario(self):
-        """Limpia todos los campos del formulario"""
         self.id_var.set("")
         self.nombre_var.set("")
         self.email_var.set("")
         self.telefono_var.set("")
         self.direccion_var.set("")
+        self.rut_var.set("")
         self.tipo_var.set("Regular")
         
-        # Limpiar variables específicas
         if hasattr(self, 'puntos_var'):
             self.puntos_var.set("0")
         if hasattr(self, 'nivel_var'):
@@ -391,8 +338,6 @@ class GICApp:
             self.beneficios_var.set("")
         if hasattr(self, 'empresa_var'):
             self.empresa_var.set("")
-        if hasattr(self, 'nit_var'):
-            self.nit_var.set("")
         if hasattr(self, 'contacto_var'):
             self.contacto_var.set("")
         
@@ -400,7 +345,6 @@ class GICApp:
         self._actualizar_status("Formulario limpiado")
     
     def _validar_email(self):
-        """Valida el email ingresado"""
         email = self.email_var.get().strip()
         
         if not email:
@@ -422,9 +366,7 @@ class GICApp:
             messagebox.showerror("Error", f"Error en validación: {str(e)}")
     
     def _guardar_cliente(self):
-        """Guarda o actualiza un cliente"""
         try:
-            # Validar campos básicos
             if not self.nombre_var.get().strip():
                 messagebox.showwarning("Validación", "El nombre es obligatorio")
                 return
@@ -441,29 +383,30 @@ class GICApp:
                 messagebox.showwarning("Validación", "La dirección es obligatoria")
                 return
             
-            # Obtener datos básicos
+            if not self.rut_var.get().strip():
+                messagebox.showwarning("Validación", "El RUT es obligatorio")
+                return
+            
             cliente_id = int(self.id_var.get()) if self.id_var.get() else 0
             nombre = self.nombre_var.get().strip()
             email = self.email_var.get().strip()
             telefono = self.telefono_var.get().strip()
             direccion = self.direccion_var.get().strip()
             tipo = self.tipo_var.get()
+            rut = self.rut_var.get().strip()
             
-            # Obtener fecha de registro original si es edición
             fecha_registro = None
             if self.cliente_seleccionado and self.cliente_seleccionado.id == cliente_id:
                 fecha_registro = self.cliente_seleccionado.fecha_registro
             
-            # Crear cliente según tipo
             if tipo == "Regular":
                 puntos = int(self.puntos_var.get() or 0)
-                cliente = ClienteRegular(cliente_id, nombre, email, telefono, direccion, puntos, fecha_registro)
+                cliente = ClienteRegular(cliente_id, nombre, email, telefono, direccion, rut, puntos, fecha_registro)
                 
             elif tipo == "Premium":
                 nivel = self.nivel_var.get()
-                cliente = ClientePremium(cliente_id, nombre, email, telefono, direccion, nivel, fecha_registro)
+                cliente = ClientePremium(cliente_id, nombre, email, telefono, direccion, rut, nivel, fecha_registro)
                 
-                # Agregar beneficios si existen
                 beneficios = self.beneficios_var.get().strip()
                 if beneficios:
                     for benef in beneficios.split(','):
@@ -473,22 +416,19 @@ class GICApp:
                             
             elif tipo == "Corporativo":
                 empresa = self.empresa_var.get().strip()
-                nit = self.nit_var.get().strip()
                 contacto = self.contacto_var.get().strip() or None
                 
                 cliente = ClienteCorporativo(cliente_id, nombre, email, telefono, 
-                                           direccion, empresa, nit, contacto, fecha_registro)
+                                           direccion, rut, empresa, contacto, fecha_registro)
             
             else:
                 messagebox.showerror("Error", "Tipo de cliente no válido")
                 return
             
-            # Guardar en base de datos
             if self.db_manager.guardar_cliente(cliente):
                 self._actualizar_status(f"Cliente {nombre} guardado correctamente")
                 self._cargar_clientes()
                 
-                # Preguntar si enviar email de bienvenida
                 if messagebox.askyesno("Email de Bienvenida", 
                                       "¿Desea enviar un email de bienvenida al cliente?"):
                     self._enviar_email_bienvenida(cliente)
@@ -504,9 +444,7 @@ class GICApp:
             self.logger.log_error_detallado(e, "Guardar cliente")
     
     def _enviar_email_bienvenida(self, cliente):
-        """Envía email de bienvenida al cliente"""
         try:
-            # En un hilo separado para no bloquear la interfaz
             def enviar_email():
                 service = NotificationService()
                 if service.enviar_email_bienvenida(cliente):
@@ -526,7 +464,6 @@ class GICApp:
             messagebox.showerror("Error", f"No se pudo enviar el email: {str(e)}")
     
     def _eliminar_cliente(self):
-        """Elimina el cliente seleccionado"""
         if not self.cliente_seleccionado:
             messagebox.showwarning("Selección", "Seleccione un cliente para eliminar")
             return
@@ -545,7 +482,6 @@ class GICApp:
                 messagebox.showerror("Error", "No se pudo eliminar el cliente")
     
     def _buscar_clientes(self):
-        """Busca clientes según criterio"""
         criterio = self.search_var.get().strip()
         
         if not criterio:
@@ -553,11 +489,9 @@ class GICApp:
             return
         
         try:
-            # Buscar por nombre o email
             clientes_nombre = self.db_manager.buscar_clientes("nombre", criterio)
             clientes_email = self.db_manager.buscar_clientes("email", criterio)
             
-            # Combinar resultados únicos
             todos_ids = set()
             resultados = []
             
@@ -574,7 +508,6 @@ class GICApp:
             messagebox.showerror("Error", f"Error en búsqueda: {str(e)}")
     
     def _actualizar_logs(self):
-        """Actualiza el área de logs"""
         try:
             logs = self.db_manager.obtener_logs(20)
             
@@ -587,7 +520,6 @@ class GICApp:
                     linea += f" - {detalles}"
                 self.log_text.insert(tk.END, linea + "\n")
             
-            # También agregar logs del sistema
             self.log_text.insert(tk.END, "\n=== LOGS DEL SISTEMA ===\n")
             logs_sistema = self.logger.obtener_logs_recientes(10)
             for log_line in logs_sistema:
@@ -597,7 +529,6 @@ class GICApp:
             self.log_text.insert(tk.END, f"Error al cargar logs: {str(e)}\n")
     
     def _exportar_json(self):
-        """Exporta clientes a JSON"""
         try:
             if not self.clientes:
                 messagebox.showwarning("Exportar", "No hay clientes para exportar")
@@ -615,8 +546,23 @@ class GICApp:
         except Exception as e:
             messagebox.showerror("Error", f"Error en exportación: {str(e)}")
     
+    def _exportar_csv(self):
+        try:
+            if not self.clientes:
+                messagebox.showwarning("Exportar", "No hay clientes para exportar")
+                return
+            
+            ruta = self.json_manager.exportar_clientes_csv(self.clientes)
+            
+            if ruta:
+                messagebox.showinfo("Exportación Exitosa", f"Clientes exportados a CSV:\n{ruta}")
+                self._actualizar_status(f"Exportación CSV completada: {ruta}")
+            else:
+                messagebox.showerror("Error", "No se pudo exportar a CSV")
+        except Exception as e:
+            messagebox.showerror("Error", f"Error en exportación CSV: {str(e)}")
+
     def _crear_backup(self):
-        """Crea un backup completo del sistema"""
         try:
             ruta = self.json_manager.crear_backup(self.db_manager)
             
@@ -625,7 +571,6 @@ class GICApp:
                                   f"Backup creado exitosamente:\n{ruta}")
                 self._actualizar_status(f"Backup creado: {ruta}")
                 
-                # También backup de logs
                 self.logger.crear_backup_logs()
             else:
                 messagebox.showerror("Error", "No se pudo crear el backup")
@@ -634,11 +579,9 @@ class GICApp:
             messagebox.showerror("Error", f"Error al crear backup: {str(e)}")
     
     def _actualizar_status(self, mensaje):
-        """Actualiza la barra de estado"""
         self.status_var.set(mensaje)
         self.logger.log(mensaje, "INFO")
     
     def run(self):
-        """Inicia la aplicación"""
         self._actualizar_status("Sistema GIC iniciado correctamente")
         self.root.mainloop()

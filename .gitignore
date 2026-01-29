@@ -1,19 +1,14 @@
-# Python cache
 __pycache__/
 *.pyc
 
-# Base de datos (No subir la DB local con datos de prueba)
 *.db
 clientes.db
 
-# Carpetas generadas por la aplicación
 logs/
 backups/
 
-# Entornos virtuales
 venv/
 env/
 
-# Configuración de IDE
 .vscode/
 .idea/

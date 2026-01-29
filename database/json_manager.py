@@ -3,6 +3,7 @@ Gestor de archivos JSON para backup y exportación
 """
 
 import json
+import csv
 import os
 from datetime import datetime
 
@@ -40,7 +41,6 @@ class JSONManager:
                     info['beneficios_extra'] = cliente.beneficios_extra
                 elif hasattr(cliente, 'empresa'):
                     info['empresa'] = cliente.empresa
-                    info['nit'] = cliente.nit
                     info['contacto_alterno'] = cliente.contacto_alterno
                     info['facturacion_mensual'] = cliente.facturacion_mensual
                 
@@ -56,6 +56,51 @@ class JSONManager:
             print(f"Error al exportar clientes: {e}")
             return None
     
+    def exportar_clientes_csv(self, clientes, nombre_archivo=None):
+        """Exporta clientes a archivo CSV"""
+        if not nombre_archivo:
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            nombre_archivo = f"clientes_export_{timestamp}.csv"
+        
+        ruta_completa = os.path.join(self.backup_dir, nombre_archivo)
+        
+        try:
+            if not clientes:
+                return None
+
+            # Definir encabezados (campos comunes + específicos)
+            fieldnames = ['id', 'nombre', 'email', 'telefono', 'direccion', 
+                          'tipo', 'rut', 'fecha_registro', 'activo', 
+                          'puntos_fidelidad', 'nivel', 'beneficios_extra',
+                          'empresa', 'contacto_alterno', 'facturacion_mensual']
+            
+            with open(ruta_completa, 'w', newline='', encoding='utf-8') as f:
+                writer = csv.DictWriter(f, fieldnames=fieldnames)
+                writer.writeheader()
+                
+                for cliente in clientes:
+                    info = cliente.obtener_informacion()
+                    # Aplanar datos específicos para CSV
+                    if hasattr(cliente, 'puntos_fidelidad'):
+                        info['puntos_fidelidad'] = cliente.puntos_fidelidad
+                    elif hasattr(cliente, 'nivel'):
+                        info['nivel'] = cliente.nivel
+                        info['beneficios_extra'] = "|".join(cliente.beneficios_extra) # Lista a string
+                    elif hasattr(cliente, 'empresa'):
+                        info['empresa'] = cliente.empresa
+                        info['contacto_alterno'] = cliente.contacto_alterno
+                        info['facturacion_mensual'] = cliente.facturacion_mensual
+                    
+                    # Rellenar campos faltantes con vacío para mantener estructura
+                    row = {k: info.get(k, '') for k in fieldnames}
+                    writer.writerow(row)
+            
+            return ruta_completa
+            
+        except Exception as e:
+            print(f"Error al exportar CSV: {e}")
+            return None
+
     def importar_clientes(self, ruta_archivo):
         """Importa clientes desde archivo JSON"""
         try:

@@ -1,26 +1,19 @@
-"""
-Gestor de archivos JSON para backup y exportación
-"""
-
 import json
 import csv
 import os
 from datetime import datetime
 
 class JSONManager:
-    """Manejador de archivos JSON para clientes"""
     
     def __init__(self, backup_dir="backups"):
         self.backup_dir = backup_dir
         self._crear_directorio()
     
     def _crear_directorio(self):
-        """Crea el directorio de backups si no existe"""
         if not os.path.exists(self.backup_dir):
             os.makedirs(self.backup_dir)
     
     def exportar_clientes(self, clientes, nombre_archivo=None):
-        """Exporta clientes a archivo JSON"""
         if not nombre_archivo:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             nombre_archivo = f"clientes_export_{timestamp}.json"
@@ -28,12 +21,9 @@ class JSONManager:
         ruta_completa = os.path.join(self.backup_dir, nombre_archivo)
         
         try:
-            # Convertir clientes a diccionarios
             clientes_dict = []
             for cliente in clientes:
                 info = cliente.obtener_informacion()
-                
-                # Agregar datos específicos según tipo
                 if hasattr(cliente, 'puntos_fidelidad'):
                     info['puntos_fidelidad'] = cliente.puntos_fidelidad
                 elif hasattr(cliente, 'nivel'):
@@ -41,13 +31,11 @@ class JSONManager:
                     info['beneficios_extra'] = cliente.beneficios_extra
                 elif hasattr(cliente, 'empresa'):
                     info['empresa'] = cliente.empresa
-                    info['nit'] = cliente.nit
                     info['contacto_alterno'] = cliente.contacto_alterno
                     info['facturacion_mensual'] = cliente.facturacion_mensual
                 
                 clientes_dict.append(info)
             
-            # Guardar en archivo JSON
             with open(ruta_completa, 'w', encoding='utf-8') as f:
                 json.dump(clientes_dict, f, indent=2, default=str)
             
@@ -58,7 +46,6 @@ class JSONManager:
             return None
     
     def exportar_clientes_csv(self, clientes, nombre_archivo=None):
-        """Exporta clientes a archivo CSV"""
         if not nombre_archivo:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             nombre_archivo = f"clientes_export_{timestamp}.csv"
@@ -69,11 +56,10 @@ class JSONManager:
             if not clientes:
                 return None
 
-            # Definir encabezados (campos comunes + específicos)
             fieldnames = ['id', 'nombre', 'email', 'telefono', 'direccion', 
-                          'tipo', 'fecha_registro', 'activo', 
+                          'tipo', 'rut', 'fecha_registro', 'activo', 
                           'puntos_fidelidad', 'nivel', 'beneficios_extra',
-                          'empresa', 'nit', 'contacto_alterno', 'facturacion_mensual']
+                          'empresa', 'contacto_alterno', 'facturacion_mensual']
             
             with open(ruta_completa, 'w', newline='', encoding='utf-8') as f:
                 writer = csv.DictWriter(f, fieldnames=fieldnames)
@@ -81,19 +67,16 @@ class JSONManager:
                 
                 for cliente in clientes:
                     info = cliente.obtener_informacion()
-                    # Aplanar datos específicos para CSV
                     if hasattr(cliente, 'puntos_fidelidad'):
                         info['puntos_fidelidad'] = cliente.puntos_fidelidad
                     elif hasattr(cliente, 'nivel'):
                         info['nivel'] = cliente.nivel
-                        info['beneficios_extra'] = "|".join(cliente.beneficios_extra) # Lista a string
+                        info['beneficios_extra'] = "|".join(cliente.beneficios_extra)
                     elif hasattr(cliente, 'empresa'):
                         info['empresa'] = cliente.empresa
-                        info['nit'] = cliente.nit
                         info['contacto_alterno'] = cliente.contacto_alterno
                         info['facturacion_mensual'] = cliente.facturacion_mensual
                     
-                    # Rellenar campos faltantes con vacío para mantener estructura
                     row = {k: info.get(k, '') for k in fieldnames}
                     writer.writerow(row)
             
@@ -104,13 +87,10 @@ class JSONManager:
             return None
 
     def importar_clientes(self, ruta_archivo):
-        """Importa clientes desde archivo JSON"""
         try:
             with open(ruta_archivo, 'r', encoding='utf-8') as f:
                 clientes_dict = json.load(f)
             
-            # Reconstruir objetos Cliente (solo datos, sin instancias)
-            # En una implementación real, se crearían las instancias apropiadas
             return clientes_dict
             
         except Exception as e:
@@ -118,7 +98,6 @@ class JSONManager:
             return []
     
     def crear_backup(self, db_manager):
-        """Crea un backup completo de la base de datos"""
         try:
             clientes = db_manager.obtener_todos_clientes()
             if not clientes:
@@ -129,7 +108,6 @@ class JSONManager:
             
             ruta_backup = self.exportar_clientes(clientes, nombre_backup)
             
-            # Registrar backup
             logs = db_manager.obtener_logs(50)
             info_backup = {
                 "fecha": datetime.now().isoformat(),
@@ -149,7 +127,6 @@ class JSONManager:
             return None
     
     def listar_backups(self):
-        """Lista todos los backups disponibles"""
         try:
             backups = []
             for archivo in os.listdir(self.backup_dir):
