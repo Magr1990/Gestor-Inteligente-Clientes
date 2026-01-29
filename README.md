@@ -1,53 +1,57 @@
 # Gestor Inteligente de Clientes (GIC)
 
-Sistema completo de gestión de clientes para SolutionTech, desarrollado en Python con POO.
+Sistema integral de gestión de clientes desarrollado en Python para la empresa **SolutionTech**. Este proyecto implementa una solución escalable basada en Programación Orientada a Objetos (POO), con interfaz gráfica, persistencia de datos y validaciones avanzadas.
 
-## Características Principales
+## 🚀 Características
 
-### ✅ POO Completo
-- **Herencia**: Cliente base con 3 tipos especializados
-- **Polimorfismo**: Métodos comunes con comportamientos diferentes
-- **Encapsulación**: Atributos privados con getters/setters
-- **Abstracción**: Clases abstractas y métodos abstractos
+- **Gestión de Clientes**: CRUD completo (Crear, Leer, Actualizar, Eliminar).
+- **Tipos de Clientes**: Soporte para clientes Regulares, Premium y Corporativos con lógica de negocio diferenciada (polimorfismo).
+- **Interfaz Gráfica**: GUI moderna construida con **Tkinter**.
+- **Persistencia de Datos**:
+  - Base de datos **SQLite** para almacenamiento robusto.
+  - Exportación e importación en formatos **JSON** y **CSV**.
+- **Validaciones Avanzadas**: Verificación de emails, teléfonos (formato internacional) y NIT.
+- **Sistema de Logs**: Registro detallado de operaciones y errores.
+- **Integraciones**: Simulación de servicios de notificación por email y validación externa.
 
-### ✅ Tipos de Clientes
-1. **Cliente Regular**: Descuento básico (5%) + sistema de puntos
-2. **Cliente Premium**: Descuentos mayores (10-20%) según nivel
-3. **Cliente Corporativo**: Descuentos corporativos + facturación empresarial
+## 📋 Requisitos
 
-### ✅ Validaciones Avanzadas
-- Email con regex y verificación de dominio
-- Teléfono internacional con phonenumbers
-- NIT con algoritmo de verificación
-- Dirección con validación de componentes
-- Manejo de excepciones personalizadas
+- Python 3.8 o superior
+- Librerías externas: `phonenumbers`, `requests`
 
-### ✅ Persistencia de Datos
-- **SQLite**: Base de datos relacional para operaciones CRUD
-- **JSON**: Exportación/importación y backups
-- **CSV**: Compatibilidad con otras aplicaciones
+## 🛠️ Instalación y Ejecución
 
-### ✅ Interfaz Gráfica (Tkinter)
-- Gestión completa de clientes (CRUD)
-- Búsqueda avanzada
-- Validación en tiempo real
-- Sistema de logs integrado
-- Exportación/importación de datos
+1. **Clonar el repositorio**:
+   ```bash
+   git clone https://github.com/Magr1990/Gestor-Inteligente-Clientes.git
+   cd Gestor-Inteligente-Clientes
+   ```
 
-### ✅ Integraciones con APIs
-- Validación de emails (simulada)
-- Envío de emails de bienvenida
-- Sistema de notificaciones
-- APIs extensibles para servicios externos
+2. **Instalar dependencias**:
+   ```bash
+   pip install phonenumbers requests
+   ```
 
-### ✅ Sistema de Logging
-- Registro de todas las operaciones
-- Niveles de log (DEBUG, INFO, WARNING, ERROR, CRITICAL)
-- Rotación automática de archivos
-- Backup de logs
+3. **Organizar estructura**:
+   El proyecto incluye un script para asegurar que los módulos estén en su lugar.
+   ```bash
+   python organize.py
+   ```
 
-## Instalación y Ejecución
+4. **Ejecutar la aplicación**:
+   ```bash
+   python main.py
+   ```
 
-### 1. Requisitos Previos
-```bash
-Python 3.8 o superior
+## 📂 Estructura del Proyecto
+
+- `gui/`: Interfaz gráfica (Ventana principal, formularios).
+- `models/`: Clases de negocio (Cliente, ClientePremium, etc.).
+- `database/`: Gestión de SQLite y archivos JSON/CSV.
+- `utils/`: Validadores y sistema de logs.
+- `api_integrations/`: Servicios externos simulados.
+- `tests/`: Pruebas unitarias.
+
+## 👤 Autor
+
+Proyecto desarrollado como parte del módulo de evaluación de Python Avanzado.
